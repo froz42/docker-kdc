@@ -1,4 +1,3 @@
-version: "3.7"
 services:
   kdc-server:
     image: kdc-server
