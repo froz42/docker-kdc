@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -e
+
 KADMIN_PRINCIPAL_FULL=$KADMIN_PRINCIPAL@$KDC_REALM
 
 echo "REALM: $KDC_REALM"
@@ -29,6 +31,7 @@ cat > /etc/krb5kdc/kdc.conf <<EOF
 		max_renewable_life = 7d 0h 0m 0s
 		supported_enctypes = $KDC_SUPPORTED_ENCRYPTION_TYPES
 		default_principal_flags = +preauth
+		key_stash_file = /var/lib/krb5kdc/.k5.$KDC_REALM
 	}
 EOF
 
@@ -53,10 +56,7 @@ if [ ! -f /var/lib/krb5kdc/principal ]; then
     echo
 
     echo "Creating Kerberos database"
-    krb5_newrealm <<EOF
-$MASTER_PASSWORD
-$MASTER_PASSWORD
-EOF
+    kdb5_util create -s -P $MASTER_PASSWORD
 fi
 
 echo "Starting Kerberos KDC"
