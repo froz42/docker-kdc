@@ -1,0 +1,23 @@
+version: "3.7"
+services:
+  kdc-server:
+    image: kdc-server
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "88:88"
+      - "749:749"
+      - "750:750"
+    environment:
+      - KDC_REALM=${KDC_REALM}
+      - KDC_SERVER=${KDC_SERVER}
+      - KADMIN_PRINCIPAL=${KADMIN_PRINCIPAL}
+      - KADMIN_PASSWORD=${KADMIN_PASSWORD}
+      - KDC_SUPPORTED_ENCRYPTION_TYPES=${KDC_SUPPORTED_ENCRYPTION_TYPES}
+    volumes:
+      - ./kadm5.acl:/etc/krb5kdc/kadm5.acl
+      - database:/var/lib/krb5kdc
+
+volumes:
+  database:
