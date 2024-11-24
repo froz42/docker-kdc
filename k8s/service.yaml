@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: kdc-server
+spec:
+  type: LoadBalancer
+  selector:
+    app: kdc-server
+  ports:
+    - protocol: TCP
+      port: 88
+      targetPort: 88
+      name: kdc-tcp
+    - protocol: TCP
+      port: 749
+      targetPort: 749
+      name: kadmin-tcp
+    - protocol: TCP
+      port: 750
+      targetPort: 750
+      name: kpasswdd-tcp
+    - protocol: UDP
+      port: 88
+      targetPort: 88
+      name: kdc-udp
+    - protocol: UDP
+      port: 749
+      targetPort: 749
+      name: kadmin-udp
+    - protocol: UDP
+      port: 750
+      targetPort: 750
+      name: kpasswdd-udp

@@ -1,0 +1,27 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: kdc
+
+images:
+  - name: ghcr.io/froz42/docker-kdc
+    newName: ghcr.io/froz42/docker-kdc
+    newTag: v1.0.1
+
+resources:
+  - statefulset.yaml
+  - service.yaml
+
+configMapGenerator:
+  - name: kdc-acl
+    files:
+      - configs/kadm5.acl
+  
+  - name: kdc-config
+    envs:
+      - configs/kdc-config.env
+
+secretGenerator:
+  - name: kdc-secrets
+    envs:
+      - secrets/kdc-secrets.env

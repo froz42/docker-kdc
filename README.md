@@ -11,6 +11,7 @@ This repository provides a ready-to-use Dockerized Kerberos Key Distribution Cen
 - Automatically initializes the Kerberos database on first run.
 - Uses `kadm5.acl` for fine-grained ACL configuration.
 - Persisted Kerberos database using Docker volumes.
+- Kubernetes deployment manifests for seamless integration into a Kubernetes cluster.
 - Prebuilt Docker image available on [GitHub Container Registry (ghcr.io)](https://ghcr.io/froz42/docker-kdc).
 
 ---
@@ -20,7 +21,8 @@ This repository provides a ready-to-use Dockerized Kerberos Key Distribution Cen
 ### Prerequisites
 
 - Docker installed on your system.
-- `docker-compose` installed for orchestration.
+- `docker-compose` for orchestration.
+- Kubernetes cluster (for Kubernetes deployment).
 
 ---
 
@@ -54,7 +56,7 @@ kadmin/admin@EXAMPLE.COM *
 
 ## Usage
 
-### Build and Run the Container
+### Docker: Build and Run the Container
 
 1. Clone the repository and navigate to the project directory.
 
@@ -84,17 +86,52 @@ services:
 
 ---
 
-## Entrypoint Details
+## Kubernetes: Deploying on a Cluster
 
-The container uses the following entrypoint script:
+This repository includes example manifests for deploying the Kerberos KDC server on Kubernetes. These files are located in the `k8s/` directory.
 
-1. Creates the `krb5.conf` and `kdc.conf` configuration files dynamically based on the environment variables.
+### Directory Structure
 
-2. Initializes the Kerberos database if not already initialized, and generates a master password.
+```plaintext
+k8s/
+├── configs/
+│   ├── kadm5.acl
+│   ├── kdc-config.env
+├── secrets/
+│   ├── kdc-secrets.env
+├── kustomization.yaml
+├── service.yaml
+├── statefulset.yaml
+```
 
-3. Configures the admin principal using the specified `KADMIN_PRINCIPAL` and `KADMIN_PASSWORD`.
+### Configuration Files
 
-4. Starts the Kerberos KDC server.
+- **`k8s/configs/kadm5.acl`**: ACL file for Kerberos administration.
+- **`k8s/configs/kdc-config.env`**: Environment variables for the KDC configuration.
+- **`k8s/secrets/kdc-secrets.env`**: Secrets such as admin credentials (e.g., `KADMIN_PASSWORD`).
+
+### Deployment Manifests
+
+- **`k8s/kustomization.yaml`**: Base configuration for Kubernetes resources using Kustomize.
+- **`k8s/service.yaml`**: Service definition for exposing the Kerberos KDC server.
+- **`k8s/statefulset.yaml`**: StatefulSet definition for deploying the Kerberos KDC with persistent storage.
+
+### Deploying with Kustomize
+
+1. Review and update the configuration and secrets files under `k8s/configs/` and `k8s/secrets/`.
+
+2. Deploy the KDC server using `kubectl`:
+
+   ```bash
+   kubectl apply -k ./k8s/
+   ```
+
+3. Verify the deployment:
+
+   ```bash
+   kubectl get pods
+   kubectl get svc
+   ```
 
 ---
 

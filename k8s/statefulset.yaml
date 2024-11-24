@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: kdc-server
+  labels:
+    app: kdc-server
+spec:
+  replicas: 1
+  revisionHistoryLimit: 0
+  selector:
+    matchLabels:
+      app: kdc-server
+  volumeClaimTemplates:
+    - metadata:
+        name: kdc-server-data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 500Mi
+  template:
+    metadata:
+      labels:
+        app: kdc-server
+    spec:
+      volumes:
+        - name: kdc-acl
+          configMap:
+            name: kdc-acl
+            items:
+              - key: kadm5.acl
+                path: kadm5.acl
+      containers:
+        - name: kdc-server
+          image: ghcr.io/froz42/docker-kdc:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 88
+              protocol: TCP
+              name: kdc-tcp
+            - containerPort: 88
+              protocol: UDP
+              name: kdc-udp
+            - containerPort: 749
+              protocol: TCP
+              name: kadmin-tcp
+            - containerPort: 749
+              protocol: UDP
+              name: kadmin-udp
+            - containerPort: 750
+              protocol: TCP
+              name: kpasswdd-tcp
+            - containerPort: 750
+              protocol: UDP
+              name: kpasswdd-udp
+          envFrom:
+            - configMapRef:
+                name: kdc-config
+            - secretRef:
+                name: kdc-secrets
+          volumeMounts:
+            - name: kdc-acl
+              mountPath: /etc/krb5kdc/kadm5.acl
+              subPath: kadm5.acl
+            - name: kdc-server-data
+              mountPath: /var/lib/krb5kdc
